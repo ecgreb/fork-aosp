@@ -1,5 +1,7 @@
 package com.example.forkaosp;
 
+import com.mapzen.android.lost.api.LostApiClient;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -19,12 +21,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import static com.google.android.gms.location.LocationServices.FusedLocationApi;
-
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private GoogleApiClient googleApiClient;
+    private LostApiClient lostApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,47 +36,63 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // Create an instance of GoogleAPIClient.
-        if (googleApiClient == null) {
-            googleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                        @Override public void onConnected(Bundle bundle) {
-                            LocationRequest locationRequest = LocationRequest.create();
-                            FusedLocationApi.requestLocationUpdates(googleApiClient,
-                                    locationRequest, new LocationListener() {
-                                        @Override public void onLocationChanged(Location location) {
-                                            // Prime the pump.
-                                        }
-                                    });
-                        }
-
-                        @Override public void onConnectionSuspended(int i) {
-                        }
-                    })
-                    .addOnConnectionFailedListener(
-                            new GoogleApiClient.OnConnectionFailedListener() {
-                                @Override public void onConnectionFailed(
-                                        ConnectionResult connectionResult) {
-                                    Log.e("SXSW", "Connection failed");
-                                }
-                            })
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-
-        googleApiClient.connect();
+        initGoogleApiClient();
+        //initLostApiClient();
 
         final Button findMe = (Button) findViewById(R.id.find_me);
         findMe.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                Location location = FusedLocationApi.getLastLocation(googleApiClient);
-                if (location != null) {
-                    LatLng current = new LatLng(location.getLatitude(), location.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(current).title("You are here"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-                }
+                onFindMeButtonClick();
             }
         });
+    }
+
+    private void initGoogleApiClient() {
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override public void onConnected(Bundle bundle) {
+                        LocationRequest locationRequest = LocationRequest.create();
+                        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient,
+                                locationRequest, new LocationListener() {
+                                    @Override public void onLocationChanged(Location location) {
+                                        // Prime the pump.
+                                    }
+                                });
+                    }
+
+                    @Override public void onConnectionSuspended(int i) {
+                    }
+                })
+                .addOnConnectionFailedListener(
+                        new GoogleApiClient.OnConnectionFailedListener() {
+                            @Override public void onConnectionFailed(
+                                    ConnectionResult connectionResult) {
+                                Log.e("SXSW", "Connection failed!");
+                            }
+                        })
+                .addApi(LocationServices.API)
+                .build();
+
+        googleApiClient.connect();
+    }
+
+    private void initLostApiClient() {
+        lostApiClient = new LostApiClient.Builder(this).build();
+        lostApiClient.connect();
+    }
+
+    private void onFindMeButtonClick() {
+        Location location = com.google.android.gms.location.LocationServices.FusedLocationApi
+                .getLastLocation(googleApiClient);
+
+        //Location location = com.mapzen.android.lost.api.LocationServices.FusedLocationApi
+        //        .getLastLocation();
+
+        if (location != null) {
+            LatLng current = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(current).title("You are here"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(current));
+        }
     }
 
     /**
