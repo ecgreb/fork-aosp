@@ -16,14 +16,29 @@ android {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
+    productFlavors {
+      google {
+        applicationId = "com.example.forkaosp"
+      }
+      tangram {
+        applicationId = "com.example.forkaosp.tangram"
+      }
+    }
   }
+}
+
+repositories {
+  mavenCentral()
+  mavenLocal()
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
   testCompile 'junit:junit:4.12'
   compile 'com.android.support:appcompat-v7:22.2.1'
-  compile 'com.google.android.gms:play-services-maps:8.4.0'
+  googleCompile 'com.google.android.gms:play-services-maps:8.4.0'
+  tangramCompile 'com.mapzen.tangram:tangram:0.1-SNAPSHOT'
   compile 'com.google.android.gms:play-services-location:8.4.0'
   compile 'com.mapzen.android:lost:1.1.0'
 }
