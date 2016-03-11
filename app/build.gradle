@@ -41,4 +41,5 @@ dependencies {
   tangramCompile 'com.mapzen.tangram:tangram:0.1-SNAPSHOT'
   compile 'com.google.android.gms:play-services-location:8.4.0'
   compile 'com.mapzen.android:lost:1.1.0'
+  compile 'com.example.awesome:myawesomelibrary:1.0.0-SNAPSHOT'
 }

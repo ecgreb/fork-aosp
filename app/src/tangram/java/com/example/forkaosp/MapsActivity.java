@@ -9,6 +9,7 @@ import com.mapzen.tangram.MapView;
 import com.mapzen.tangram.Properties;
 import com.mapzen.tangram.Tangram;
 
+import com.example.myawesomelibrary.SnackFactory;
 import com.squareup.okhttp.Callback;
 
 import android.location.Location;
@@ -74,6 +75,7 @@ public class MapsActivity extends AppCompatActivity {
             Properties props = new Properties();
             props.set("type", "point");
             marker.addPoint(props, current);
+            new SnackFactory().tasty(findViewById(R.id.find_me));
         }
     }
 }
